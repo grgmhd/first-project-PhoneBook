@@ -1,5 +1,7 @@
-package project1.ver07;
+package project1.ver08;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Iterator;
@@ -22,7 +24,8 @@ public class PhoneBookManager
 			System.out.println("2. 주소록 검색");
 			System.out.println("3. 주소록 삭제");
 			System.out.println("4. 주소록 출력");
-			System.out.println("5. 프로그램 종료");
+			System.out.println("5. 저장옵션 선택");
+			System.out.println("6. 프로그램 종료");
 			System.out.println("====================");
 			
 			
@@ -52,9 +55,16 @@ public class PhoneBookManager
 					dataAllShow();
 					break;
 				}
+				case MenuItem.AUTOSAVE: // 출력
+				{
+					
+					
+					break;
+				}
 				case MenuItem.QUIT: // 종료
 				{
-					System.out.println("프로그램을 종료합니다");
+					scanner.nextLine();
+					quit();
 					scanner.close();
 					return;
 				}
@@ -271,4 +281,30 @@ public class PhoneBookManager
 		System.out.println("--------------------");
 		System.out.println("주소록에 저장된 정보가 출력되었습니다");
 	}
+	
+	public void quit()
+	{
+		try
+		{
+			ObjectOutputStream out = new ObjectOutputStream
+					(new FileOutputStream("src/project1/ver08/PhoneBook.obj"));
+			System.out.println("프로그램을 종료합니다");
+			for(PhoneInfo pi: phone)
+			{
+				out.writeObject(pi.showPhoneInfo());
+			}
+			out.close();
+		}
+		catch(Exception err)
+		{
+			err.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
 }
