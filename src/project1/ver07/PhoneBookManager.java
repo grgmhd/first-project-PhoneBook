@@ -112,6 +112,9 @@ public class PhoneBookManager
 		System.out.println("주소록에 입력합니다");
 		System.out.print("이름: ");
 		String name = scanner.nextLine();
+		if(duplCheck(name))
+			return;
+		
 		System.out.print("전화번호: ");
 		String pNumber = scanner.nextLine();
 		
@@ -153,6 +156,46 @@ public class PhoneBookManager
 				System.out.println("입력이 잘못되었습니다");
 			}
 		}
+	}
+	
+	public boolean duplCheck(String name)
+	{
+		for(PhoneInfo pi: phone)
+		{
+			if(name.compareTo(pi.name)==0)
+			{
+				System.out.println("이미 저장된 데이터입니다");
+				System.out.println("덮어쓸까요? Y(y)/N(n)");
+				try
+				{
+					int cover = System.in.read();
+					
+					if(cover=='Y' || cover=='y')
+					{
+						phone.remove(pi);
+						scanner.nextLine();
+						return false;
+					}
+					else if(cover=='N' || cover=='n')
+					{
+						return true;
+					}
+					else
+					{
+						System.out.println("입력이 잘못되었습니다");
+						System.out.println("초기화면으로 돌아갑니다");
+						return true;
+					}
+				}
+				catch(Exception err)
+				{
+					System.out.println("에러가 발생했습니다");
+					System.out.println("초기화면으로 돌아갑니다");
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	// 검색
@@ -212,12 +255,8 @@ public class PhoneBookManager
 	// 주소록 전체 출력
 	public void  dataAllShow()
 	{
-		Iterator<PhoneInfo> itr = phone.iterator();
-		while(itr.hasNext())
-		{
-			PhoneInfo pi = itr.next();
+		for(PhoneInfo pi: phone)
 			pi.showPhoneInfo();
-		}
 		System.out.println("주소록에 저장된 정보가 출력되었습니다");
 	}
 }
