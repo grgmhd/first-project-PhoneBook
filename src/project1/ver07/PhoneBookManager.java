@@ -19,8 +19,8 @@ public class PhoneBookManager
 			System.out.println("====================");
 			System.out.println("메뉴를 선택하세요");
 			System.out.println("1. 주소록 입력");
-//			System.out.println("2. 주소록 검색");
-//			System.out.println("3. 주소록 삭제");
+			System.out.println("2. 주소록 검색");
+			System.out.println("3. 주소록 삭제");
 			System.out.println("4. 주소록 출력");
 			System.out.println("5. 프로그램 종료");
 			System.out.println("====================");
@@ -162,16 +162,20 @@ public class PhoneBookManager
 		String search = scanner.nextLine();
 		
 		boolean flag = false;
-		for(int i=0; i<numOfPhone; i++)
+		
+		Iterator<PhoneInfo> itr = phone.iterator();
+		while(itr.hasNext())
 		{
-			if(search.compareTo(phone[i].name)==0)
+			PhoneInfo pi = itr.next();
+			
+			if(search.compareTo(pi.name)==0)
 			{
 				System.out.println("요청한 정보를 찾았습니다");
-				phone[i].showPhoneInfo();
+				pi.showPhoneInfo();
 				flag = true;
+				return;
 			}
 		}
-		System.out.println("검색이 완료되었습니다");
 		if(flag == false)
 		{
 			System.out.println("주소록에 저장되지 않은 이름입니다");
@@ -184,29 +188,24 @@ public class PhoneBookManager
 		System.out.print("삭제할 이름을 입력하세요: ");
 		String delete = scanner.nextLine();
 		
-		int deleteIndex = -1;
-		for(int i=0; i<numOfPhone; i++)
+		boolean flag = false;
+		
+		Iterator<PhoneInfo> itr = phone.iterator();
+		while(itr.hasNext())
 		{
-			if(delete.compareTo(phone[i].name)==0)
+			PhoneInfo pi = itr.next();
+			
+			if(delete.compareTo(pi.name)==0)
 			{
-				phone[i] = null;
-				deleteIndex = i;
-				numOfPhone--;
-				break;
+				System.out.println("입력한 정보가 삭제되었습니다");
+				phone.remove(pi);
+				flag = true;
+				return;
 			}
 		}
-		if(deleteIndex == -1)
+		if(flag == false)
 		{
 			System.out.println("주소록에 저장되지 않은 이름입니다");
-		}
-		else
-		{
-			for(int i=deleteIndex; i<numOfPhone; i++)
-			{
-				phone[i] = phone[i+1];
-			}
-			System.out.printf("입력한 정보가 삭제되었습니다(%d)%n", 
-															deleteIndex);
 		}
 	}
 	
