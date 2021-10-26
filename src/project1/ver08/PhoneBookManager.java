@@ -1,13 +1,17 @@
 package project1.ver08;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.Scanner;
 
-public class PhoneBookManager
+@SuppressWarnings("serial")
+public class PhoneBookManager implements Serializable
 {
 	private HashSet<PhoneInfo> phone = new HashSet<PhoneInfo>();
 	
@@ -16,6 +20,8 @@ public class PhoneBookManager
 	// 메뉴출력
 	public void printMenu()
 	{
+		loadPhoneBook();
+		
 		while(true)
 		{
 			System.out.println("====================");
@@ -57,14 +63,14 @@ public class PhoneBookManager
 				}
 				case MenuItem.AUTOSAVE: // 출력
 				{
-					
+					scanner.nextLine();
 					
 					break;
 				}
 				case MenuItem.QUIT: // 종료
 				{
 					scanner.nextLine();
-					quit();
+					savePhoneBook();
 					scanner.close();
 					return;
 				}
@@ -80,7 +86,7 @@ public class PhoneBookManager
 		{
 			choice = scanner.nextInt();
 			
-			if(!(choice>=1 && choice<=5))
+			if(!(choice>=1 && choice<=6))
 			{
 				MenuSelectException err = new MenuSelectException();
 				throw err;
@@ -282,26 +288,52 @@ public class PhoneBookManager
 		System.out.println("주소록에 저장된 정보가 출력되었습니다");
 	}
 	
-	public void quit()
+	public void savePhoneBook()
 	{
 		try
 		{
-			ObjectOutputStream out = new ObjectOutputStream
+			ObjectOutputStream out 
+				= new ObjectOutputStream
 					(new FileOutputStream("src/project1/ver08/PhoneBook.obj"));
-			System.out.println("프로그램을 종료합니다");
 			for(PhoneInfo pi: phone)
 			{
-				out.writeObject(pi.showPhoneInfo());
+				out.writeObject(pi);
 			}
 			out.close();
+			System.out.println("프로그램을 종료합니다");
 		}
 		catch(Exception err)
 		{
+			System.out.println("저장중 에러가 발생했습니다");
 			err.printStackTrace();
+			return;
 		}
 	}
 	
-	
+	public void loadPhoneBook()
+	{
+		try
+		{
+			ObjectInputStream in 
+				= new ObjectInputStream
+					(new FileInputStream("src/project1/ver08/PhoneBook.obj"));
+			for(PhoneInfo pi: phone)
+			{
+				pi = (PhoneInfo)in.readObject();
+				phone.add(pi);
+				if(pi==null)
+					break;
+			}
+			in.close();
+		}
+		catch(Exception err)
+		{
+			System.out.println("저장된 주소록을 불러오던중 문제가 발생했습니다");
+			err.printStackTrace();
+			return;
+		}
+		System.out.println("주소록을 불러왔습니다");
+	}
 	
 	
 	
