@@ -310,6 +310,7 @@ public class PhoneBookManager implements Serializable
 		}
 	}
 	
+	// 문제발생.
 	public void loadPhoneBook()
 	{
 		try
