@@ -1,6 +1,9 @@
 package project1.ver08;
 
-public class PhoneSchoolInfo extends PhoneInfo
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class PhoneSchoolInfo extends PhoneInfo  implements Serializable
 {
 	String major;
 	String grade;

@@ -1,6 +1,9 @@
 package project1.ver08;
 
-public class PhoneInfo
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class PhoneInfo implements Serializable
 {
 	String name; 
 	String phoneNumber; 

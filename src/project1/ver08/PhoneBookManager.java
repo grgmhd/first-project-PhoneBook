@@ -321,10 +321,10 @@ public class PhoneBookManager implements Serializable
 			{
 				pi = (PhoneInfo)in.readObject();
 				phone.add(pi);
+				in.close();
 				if(pi==null)
 					break;
 			}
-			in.close();
 		}
 		catch(Exception err)
 		{
