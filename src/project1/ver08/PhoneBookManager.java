@@ -22,7 +22,7 @@ public class PhoneBookManager implements Serializable
 	// 메뉴출력
 	public void printMenu()
 	{
-		loadPhoneBook();
+		loadPhoneBook(); // 기존 데이터 불러오기
 		
 		while(true)
 		{
@@ -38,37 +38,37 @@ public class PhoneBookManager implements Serializable
 			
 			switch(selectMenu())
 			{
-				case MenuItem.DATAINPUT: // 입력(저장)
+				case MenuItem.DATAINPUT: // 연락처 입력(저장)
 				{
 					scanner.nextLine();
 					dataInput();
 					break;
 				}
-				case MenuItem.DATASEARCH: // 검색
+				case MenuItem.DATASEARCH: // 연락처 검색
 				{
 					scanner.nextLine();
 					dataSearch();
 					break;
 				}
-				case MenuItem.DATADELETE: // 삭제
+				case MenuItem.DATADELETE: // 연락처 삭제
 				{
 					scanner.nextLine();
 					dataDelete();
 					break;
 				}
-				case MenuItem.DATAALLSHOW: // 출력
+				case MenuItem.DATAALLSHOW: // 연락처 전체 출력
 				{
 					scanner.nextLine();
 					dataAllShow();
 					break;
 				}
-				case MenuItem.AUTOSAVE: // 출력
+				case MenuItem.AUTOSAVE: // 자동저장 - 쓰레드on/off
 				{
 					scanner.nextLine();
 					autoSaveBook();
 					break;
 				}
-				case MenuItem.QUIT: // 종료
+				case MenuItem.QUIT: // 종료(데이터 저장)
 				{
 					scanner.nextLine();
 					savePhoneBook();
@@ -77,8 +77,9 @@ public class PhoneBookManager implements Serializable
 				}
 			}
 		}
-	}
+	} //printMenu() 끝
 	
+	//메인 메뉴 선택을 choice로 받고 그 에러를 예외처리하는 메서드
 	public int selectMenu()
 	{
 		int choice = 0;
@@ -111,10 +112,11 @@ public class PhoneBookManager implements Serializable
 			err.printStackTrace();
 		}
 		return choice;
-	}
+	} // selectMenu() 끝
 	
 	
-	// 입력
+	/* 연락처 입력 - 입력받은 데이터묶음은 duplCheck();로 넘겨 중복체크, 
+			실질적으로 거기서 입력작업한다 */
 	public void dataInput()
 	{
 		try
@@ -182,12 +184,15 @@ public class PhoneBookManager implements Serializable
 			scanner.nextLine();
 			return;
 		}
-	}
+	} //dataInput() 끝
 	
+	// dataInput()에서 입력받은 데이터묶음을 넘겨받아 중복체크, 프로그램에 저장
 	public void duplCheck(PhoneInfo pi)
 	{
 		for(PhoneInfo def: phone)
 		{	
+			/* pi == def로 하기에는 캐스팅타입에 문제가 생겼으나 
+				딱히 해결할 방법이 떠오르지 않아 equals는 사용하지 않았다 */
 			if(pi.hashCode() == def.hashCode())
 			{
 				System.out.println("이미 저장된 데이터입니다");
@@ -225,12 +230,13 @@ public class PhoneBookManager implements Serializable
 				}
 			}
 		}
+		// 중복되지 않는 데이터는 그냥 저장된다.
 		phone.add(pi);
 		System.out.println("주소록에 입력되었습니다");
 		return;
-	}
+	} // duplCheck() 끝
 	
-	// 검색
+	// 연락처 검색
 	public void dataSearch()
 	{
 		System.out.print("검색할 이름을 입력하세요: ");
@@ -255,9 +261,9 @@ public class PhoneBookManager implements Serializable
 		{
 			System.out.println("주소록에 저장되지 않은 이름입니다");
 		}
-	}
+	} //dataSearch() 끝
 	
-	// 삭제
+	// 연락처 삭제
 	public void dataDelete()
 	{
 		System.out.print("삭제할 이름을 입력하세요: ");
@@ -282,16 +288,16 @@ public class PhoneBookManager implements Serializable
 		{
 			System.out.println("주소록에 저장되지 않은 이름입니다");
 		}
-	}
+	} //dataDelete() 끝
 	
-	// 주소록 전체 출력
+	// 주소록에 저장된 전체 데이터 출력
 	public void  dataAllShow()
 	{
 		for(PhoneInfo pi: phone)
 			pi.showPhoneInfo();
 		System.out.println("--------------------");
 		System.out.println("주소록에 저장된 정보가 출력되었습니다");
-	}
+	} //dataAllShow() 끝
 	
 	// 종료시 입력된 데이터 저장
 	public void savePhoneBook()
@@ -315,9 +321,9 @@ public class PhoneBookManager implements Serializable
 			err.printStackTrace();
 			return;
 		}
-	}
+	} //savePhoneBook() 끝
 	
-	// 저장했던 데이터 로드
+	// 시작할때 기존에 저장된 주소록 불러오기
 	public void loadPhoneBook()
 	{
 		try
@@ -336,11 +342,11 @@ public class PhoneBookManager implements Serializable
 				}
 			}
 		}
-		catch(Exception err) {} // 시끄럽다. 무시
+		catch(Exception err) {} // 시끄럽다. 무시. 무한루프끝나면 어차피 닫아준다
 		System.out.println("기존에 저장된 주소록을 불러왔습니다");
-	}
+	} //loadPhoneBook() 끝
 	
-	// 자동저장 쓰레드 on/off 옵션
+	////////////////// 자동저장 쓰레드 on/off 옵션 (진행중) ////////////////////
 	public void autoSaveBook()
 	{
 		try
@@ -384,7 +390,6 @@ public class PhoneBookManager implements Serializable
 					return;
 				}
 			}
-			
 		}
 		catch(Exception err)
 		{
@@ -393,12 +398,8 @@ public class PhoneBookManager implements Serializable
 			scanner.nextLine();
 			return;
 		}
-		
-		
-		
-		
-	}
+	} //autoSaveBook() 끝
 	
 	
 	
-}
+} // class PhoneBookManager 끝.
