@@ -15,6 +15,16 @@ public class PhoneBookManager implements Serializable
 {
 	private HashSet<PhoneInfo> phone = new HashSet<PhoneInfo>();
 	
+	public HashSet<PhoneInfo> getPhone()
+	{
+		return phone;
+	}
+
+	public void setPhone(HashSet<PhoneInfo> phone)
+	{
+		this.phone = phone;
+	}
+
 	Scanner scanner = new Scanner(System.in);
 	
 	// 메뉴출력
@@ -30,10 +40,9 @@ public class PhoneBookManager implements Serializable
 			System.out.println("2. 주소록 검색");
 			System.out.println("3. 주소록 삭제");
 			System.out.println("4. 주소록 출력");
-			System.out.println("5. 저장옵션 선택");
+			System.out.println("5. 자동저장 옵션");
 			System.out.println("6. 프로그램 종료");
 			System.out.println("====================");
-			
 			
 			switch(selectMenu())
 			{
@@ -64,7 +73,7 @@ public class PhoneBookManager implements Serializable
 				case MenuItem.AUTOSAVE: // 출력
 				{
 					scanner.nextLine();
-					
+					autoSaveBook();
 					break;
 				}
 				case MenuItem.QUIT: // 종료
@@ -75,7 +84,6 @@ public class PhoneBookManager implements Serializable
 					return;
 				}
 			}
-			
 		}
 	}
 	
@@ -107,7 +115,7 @@ public class PhoneBookManager implements Serializable
 		}
 		catch(Exception err)
 		{
-			System.out.println("알수없는 오류 발생");
+			System.out.println("알수없는 오류 발생sel");
 			err.printStackTrace();
 		}
 		return choice;
@@ -126,7 +134,7 @@ public class PhoneBookManager implements Serializable
 			
 			if(!(choice >=1 && choice<=3))
 			{
-				System.out.println("입력이 잘못되었습니다");
+				System.out.println("없는 메뉴입니다.");
 				System.out.println("초기화면으로 돌아갑니다");
 				return;
 			}
@@ -134,18 +142,17 @@ public class PhoneBookManager implements Serializable
 			System.out.println("주소록에 입력합니다");
 			System.out.print("이름: ");
 			String name = scanner.nextLine();
-			if(duplCheck(name))
-				return;
-			
 			System.out.print("전화번호: ");
 			String pNumber = scanner.nextLine();
+			
 			switch(choice)
 			{
 				case SubMenuItem.NORMAL: // 일반
 				{
 					PhoneInfo pi = new PhoneInfo(name, pNumber);
-					phone.add(pi);
-					System.out.println("주소록에 입력되었습니다");
+					
+					duplCheck(pi);
+					
 					break;
 				}
 				case SubMenuItem.CLASSMATE: // 동창
@@ -157,8 +164,9 @@ public class PhoneBookManager implements Serializable
 					
 					PhoneSchoolInfo psi 
 						= new PhoneSchoolInfo(name, pNumber, major, grade);
-					phone.add(psi);
-					System.out.println("주소록에 입력되었습니다");
+					
+					duplCheck(psi);
+					
 					break;
 				}
 				case SubMenuItem.COLLEAGUE: // 동료
@@ -168,26 +176,27 @@ public class PhoneBookManager implements Serializable
 					
 					PhoneCompanyInfo pci 
 						= new PhoneCompanyInfo(name, pNumber, companyName);
-					phone.add(pci);
-					System.out.println("주소록에 입력되었습니다");
+					duplCheck(pci);
+					
 					break;
 				}
 			}
 		}
 		catch(Exception err)
 		{
-			System.out.println("에러가 발생했습니다");
+			System.out.println("에러가 발생했습니다input");
+			err.printStackTrace();
 			System.out.println("초기화면으로 돌아갑니다");
 			scanner.nextLine();
 			return;
 		}
 	}
 	
-	public boolean duplCheck(String name)
+	public void duplCheck(PhoneInfo pi)
 	{
-		for(PhoneInfo pi: phone)
-		{
-			if(name.compareTo(pi.name)==0)
+		for(PhoneInfo def: phone)
+		{	
+			if(pi.hashCode() == def.hashCode())
 			{
 				System.out.println("이미 저장된 데이터입니다");
 				System.out.println("덮어쓸까요? Y(y)/N(n)");
@@ -197,32 +206,36 @@ public class PhoneBookManager implements Serializable
 					
 					if(cover=='Y' || cover=='y')
 					{
-						phone.remove(pi);
-						scanner.nextLine();
-						return false;
+						phone.remove(def);
+						phone.add(pi);
+						System.out.println("덮어쓰기가 완료되었습니다");
+						return;
 					}
 					else if(cover=='N' || cover=='n')
 					{
-						return true;
+						System.out.println("입력이 취소되었습니다");
+						return;
 					}
 					else
 					{
 						System.out.println("입력이 잘못되었습니다");
 						System.out.println("초기화면으로 돌아갑니다");
 						scanner.nextLine();
-						return true;
+						return;
 					}
 				}
 				catch(Exception err)
 				{
-					System.out.println("에러가 발생했습니다");
+					System.out.println("에러가 발생했습니다dupl");
 					System.out.println("초기화면으로 돌아갑니다");
 					scanner.nextLine();
-					return true;
+					return;
 				}
 			}
 		}
-		return false;
+		phone.add(pi);
+		System.out.println("주소록에 입력되었습니다");
+		return;
 	}
 	
 	// 검색
@@ -288,55 +301,112 @@ public class PhoneBookManager implements Serializable
 		System.out.println("주소록에 저장된 정보가 출력되었습니다");
 	}
 	
+	// 종료시 입력된 데이터 저장
 	public void savePhoneBook()
 	{
 		try
 		{
-			ObjectOutputStream out 
+			System.out.println("입력된 정보를 저장합니다");
+			ObjectOutputStream objOut 
 				= new ObjectOutputStream
 					(new FileOutputStream("src/project1/ver08/PhoneBook.obj"));
 			for(PhoneInfo pi: phone)
 			{
-				out.writeObject(pi);
+				objOut.writeObject(pi);
 			}
-			out.close();
+			objOut.close();
 			System.out.println("프로그램을 종료합니다");
 		}
 		catch(Exception err)
 		{
-			System.out.println("저장중 에러가 발생했습니다");
+			System.out.println("저장중 에러가 발생했습니save");
 			err.printStackTrace();
 			return;
 		}
 	}
 	
-	// 문제발생.
+	// 저장했던 데이터 로드
 	public void loadPhoneBook()
 	{
 		try
 		{
-			ObjectInputStream in 
+			ObjectInputStream objIn 
 				= new ObjectInputStream
 					(new FileInputStream("src/project1/ver08/PhoneBook.obj"));
-			for(PhoneInfo pi: phone)
+			while(true)
 			{
-				pi = (PhoneInfo)in.readObject();
+				PhoneInfo pi = (PhoneInfo)objIn.readObject();
 				phone.add(pi);
-				in.close();
 				if(pi==null)
+				{
+					objIn.close();
 					break;
+				}
 			}
+		}
+		catch(Exception err) {} // 시끄럽다. 무시
+		System.out.println("기존에 저장된 주소록을 불러왔습니다");
+	}
+	
+	// 자동저장 쓰레드 on/off 옵션
+	public void autoSaveBook()
+	{
+		try
+		{
+			System.out.println("자동저장 하시겠습니까?");
+			System.out.println("1.On, 2.Off");
+			
+			int svOpt = scanner.nextInt();
+			
+			if(!(svOpt >=1 && svOpt<=2))
+			{
+				System.out.println("없는 메뉴입니다.");
+				System.out.println("초기화면으로 돌아갑니다");
+				return;
+			}
+			
+			AutoSaverT ast = new AutoSaverT();
+			ast.setName("autoSaver");
+			ast.setDaemon(true);
+			
+			switch(svOpt)
+			{
+				case 1: //on
+				{
+//					if()
+//					{
+//						System.out.println("이미 자동저장 진행중입니다");
+//						return;
+//					}
+					
+					ast.start();
+				}
+				case 2: //off
+				{
+					ast.interrupt();
+				}
+				default:
+				{
+					System.out.println("입력이 잘못되었습니다");
+					System.out.println("초기화면으로 돌아갑니다");
+					scanner.nextLine();
+					return;
+				}
+			}
+			
 		}
 		catch(Exception err)
 		{
-			System.out.println("저장된 주소록을 불러오던중 문제가 발생했습니다");
-			err.printStackTrace();
+			System.out.println("에러가 발생했습니다auto");
+			System.out.println("초기화면으로 돌아갑니다");
+			scanner.nextLine();
 			return;
 		}
-		System.out.println("주소록을 불러왔습니다");
+		
+		
+		
+		
 	}
-	
-	
 	
 	
 	

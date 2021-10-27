@@ -19,4 +19,24 @@ public class PhoneCompanyInfo extends PhoneInfo  implements Serializable
 		super.showPhoneInfo();
 		System.out.println("회사명: "+ companyName);
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		int nameHashCode = name.hashCode();
+		return nameHashCode;
+	}
+	@Override
+	public boolean equals(Object obj)
+	{
+		PhoneCompanyInfo pi = (PhoneCompanyInfo)obj;
+		if(pi.name.equals(this.name))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }
