@@ -13,18 +13,10 @@ import java.util.Scanner;
 @SuppressWarnings("serial")
 public class PhoneBookManager implements Serializable
 {
-	private HashSet<PhoneInfo> phone = new HashSet<PhoneInfo>();
+	public static HashSet<PhoneInfo> phone = new HashSet<PhoneInfo>();
 	
-	public HashSet<PhoneInfo> getPhone()
-	{
-		return phone;
-	}
-
-	public void setPhone(HashSet<PhoneInfo> phone)
-	{
-		this.phone = phone;
-	}
-
+	AutoSaverT ast = new AutoSaverT();
+	
 	Scanner scanner = new Scanner(System.in);
 	
 	// 메뉴출력
@@ -365,7 +357,6 @@ public class PhoneBookManager implements Serializable
 				return;
 			}
 			
-			AutoSaverT ast = new AutoSaverT();
 			ast.setName("autoSaver");
 			ast.setDaemon(true);
 			
