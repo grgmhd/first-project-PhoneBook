@@ -32,4 +32,5 @@ public class xxx
 			pi.showPhoneInfo();
 		System.out.println("--------------------");
 	}
+	//노트북 연결 확인용
 }
