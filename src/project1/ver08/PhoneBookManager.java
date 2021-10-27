@@ -10,6 +10,8 @@ import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.Scanner;
 
+// 뭔가 잘못눌렀다 싶으면 바로 초기화면으로 돌아갑니다. 억울하면 똑바로 누르십시오
+
 @SuppressWarnings("serial")
 public class PhoneBookManager implements Serializable
 {
@@ -128,9 +130,8 @@ public class PhoneBookManager implements Serializable
 			
 			if(!(choice >=1 && choice<=3))
 			{
-				System.out.println("없는 메뉴입니다.");
-				System.out.println("초기화면으로 돌아갑니다");
-				return;
+				MenuSelectException err = new MenuSelectException();
+				throw err;
 			}
 			
 			System.out.println("주소록에 입력합니다");
@@ -176,6 +177,12 @@ public class PhoneBookManager implements Serializable
 				}
 			}
 		}
+		catch(MenuSelectException err)
+		{
+			System.out.println("없는 메뉴입니다.");
+			System.out.println("초기화면으로 돌아갑니다");
+			return;
+		}
 		catch(Exception err)
 		{
 			System.out.println("에러가 발생했습니다input");
@@ -215,11 +222,15 @@ public class PhoneBookManager implements Serializable
 					}
 					else
 					{
-						System.out.println("입력이 잘못되었습니다");
-						System.out.println("초기화면으로 돌아갑니다");
-						scanner.nextLine();
-						return;
+						MenuSelectException err = new MenuSelectException();
+						throw err;
 					}
+				}
+				catch(MenuSelectException err)
+				{
+					System.out.println("없는 메뉴입니다.");
+					System.out.println("초기화면으로 돌아갑니다");
+					return;
 				}
 				catch(Exception err)
 				{
@@ -358,9 +369,8 @@ public class PhoneBookManager implements Serializable
 			
 			if(!(svOpt >=1 && svOpt<=2))
 			{
-				System.out.println("없는 메뉴입니다.");
-				System.out.println("초기화면으로 돌아갑니다");
-				return;
+				MenuSelectException err = new MenuSelectException();
+				throw err;
 			}
 			
 			ast.setName("autoSaver");
@@ -390,6 +400,12 @@ public class PhoneBookManager implements Serializable
 					return;
 				}
 			}
+		}
+		catch(MenuSelectException err)
+		{
+			System.out.println("없는 메뉴입니다.");
+			System.out.println("초기화면으로 돌아갑니다");
+			return;
 		}
 		catch(Exception err)
 		{
