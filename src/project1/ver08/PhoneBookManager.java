@@ -328,7 +328,7 @@ public class PhoneBookManager implements Serializable
 		}
 		catch(Exception err)
 		{
-			System.out.println("저장중 에러가 발생했습니save");
+			System.out.println("저장중 에러가 발생했습니다save");
 			err.printStackTrace();
 			return;
 		}
@@ -375,12 +375,13 @@ public class PhoneBookManager implements Serializable
 			
 			ast.setName("autoSaver");
 			ast.setDaemon(true);
+			Thread.State state = ast.getState();
 			
 			switch(svOpt)
 			{
 				case 1: //on
 				{
-//					if()
+//					if(state == Thread.State.RUNNABLE || state == Thread.State.TIME_WAITING)
 //					{
 //						System.out.println("이미 자동저장 진행중입니다");
 //						return;

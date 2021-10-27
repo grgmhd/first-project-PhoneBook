@@ -45,7 +45,7 @@ public class AutoSaverT extends Thread implements Serializable
 						objOut.writeObject(pi);
 					}
 					System.out.println("자동저장 되었습니다");
-					Thread.sleep(5000);
+					sleep(5000);
 				}
 				catch(InterruptedException err)
 				{
