@@ -47,10 +47,8 @@ public class AutoSaverT extends Thread implements Serializable
 				}
 				catch(InterruptedException err)
 				{
-					System.out.println("쓰레드 진행중 에러");
 					Thread.currentThread().interrupt();
-					err.printStackTrace();
-					return;
+					break;
 				}
 				catch(Exception err)
 				{

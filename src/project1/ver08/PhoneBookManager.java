@@ -18,7 +18,8 @@ public class PhoneBookManager implements Serializable
 {
 	public static HashSet<PhoneInfo> phone = new HashSet<PhoneInfo>();
 	
-	
+	// 자동저장 쓰레드 중복체크용
+	AutoSaverT ast = null;
 	
 	Scanner scanner = new Scanner(System.in);
 	
@@ -357,15 +358,14 @@ public class PhoneBookManager implements Serializable
 	////////////////// 자동저장 쓰레드 on/off 옵션 (진행중) ////////////////////
 	public void autoSaveBook()
 	{
-		AutoSaverT ast = new AutoSaverT();
-		ast.setName("autoSaver");
-		ast.setDaemon(true);
+		
 		try
 		{
 			System.out.println("자동저장 하시겠습니까?");
 			System.out.println("1.On, 2.Off");
 			
 			int svOpt = scanner.nextInt();
+			scanner.nextLine();
 			
 			if(!(svOpt >=1 && svOpt<=2))
 			{
@@ -378,17 +378,29 @@ public class PhoneBookManager implements Serializable
 			{
 				case 1: //on
 				{
-//					if(ast.isAlive())
-//					{
-//						System.out.println("이미 자동저장 진행중입니다");
-//						return;
-//					}
+					if(ast == null || ast.isAlive() == false)
 					
-					ast.start();
+					{
+						ast = new AutoSaverT();
+						ast.setName("autoSaver");
+						ast.setDaemon(true);
+						
+						ast.start();
+						return;
+					}
+					else if(ast.isAlive() == true)
+					{
+						System.out.println("이미 자동저장이 진행중입니다");
+						return;
+					}
+					
 				}
 				case 2: //off
 				{
+					
 					ast.interrupt();
+					System.out.println("자동저장을 중지합니다");
+					return;
 				}
 				default:
 				{
@@ -406,11 +418,11 @@ public class PhoneBookManager implements Serializable
 		catch(Exception err)
 		{
 			System.out.println("에러가 발생했습니다auto");
+			err.printStackTrace();
 			System.out.println("초기화면으로 돌아갑니다");
 			scanner.nextLine();
 			return;
 		}
 	} //autoSaveBook() 끝
-	
 	
 } // class PhoneBookManager 끝.
