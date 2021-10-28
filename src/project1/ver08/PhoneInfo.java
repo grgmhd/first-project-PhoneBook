@@ -2,6 +2,8 @@ package project1.ver08;
 
 import java.io.Serializable;
 
+// PhoneSchoolInfo과 PhoneCompanyInfo의 부모Parent이고 오버라이딩의 대상이기 때문에 
+// 이 셋으로 뭘 할때 얘 타입으로 만들면 세 클래스 타입을 전부 컨트롤할 수 있습니다.
 @SuppressWarnings("serial")
 public class PhoneInfo implements Serializable
 {

@@ -9,9 +9,12 @@ import java.util.HashSet;
 @SuppressWarnings("serial")
 public class AutoSaverT extends Thread implements Serializable
 {
+	// 매니저 클래스의 hashSet을 static으로 선언해서 set만 쏙 빼내왔다
 	HashSet<PhoneInfo> phone = PhoneBookManager.phone;
 	PrintWriter strOut;
 	
+	// 새로운 객체를 만들때(=new AutoSaverT) 생성자를 불러온다. 즉 이후 동작에는 문제없음
+	// 사실 run() 안에 집어넣어도 잘 돌아간다. 기분대로 만들었다
 	public AutoSaverT()
 	{
 		try
@@ -29,6 +32,7 @@ public class AutoSaverT extends Thread implements Serializable
 		}
 	}
 	
+	// start()를 실행하면 "run()"을 실행합니다
 	@Override
 	public void run()
 	{
