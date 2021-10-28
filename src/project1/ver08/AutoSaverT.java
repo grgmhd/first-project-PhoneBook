@@ -1,8 +1,8 @@
 package project1.ver08;
 
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.HashSet;
 
@@ -10,15 +10,14 @@ import java.util.HashSet;
 public class AutoSaverT extends Thread implements Serializable
 {
 	HashSet<PhoneInfo> phone = PhoneBookManager.phone;
-	ObjectOutputStream objOut;
+	PrintWriter strOut;
 	
 	public AutoSaverT()
 	{
 		try
 		{
-			objOut = new ObjectOutputStream
-						(new FileOutputStream
-							("src/project1/ver08/AutoSaveBook.obj"));
+			strOut = new PrintWriter(new FileWriter
+							("src/project1/ver08/AutoSaveBook.txt"));
 		}
 		catch(IOException err)
 		{
@@ -40,7 +39,7 @@ public class AutoSaverT extends Thread implements Serializable
 				{
 					for(PhoneInfo pi: phone)
 					{
-						objOut.writeObject(pi);
+						strOut.print(pi);
 					}
 					System.out.println("자동저장 되었습니다");
 					sleep(5000);
