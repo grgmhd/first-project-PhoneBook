@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Scanner;
 
 // 뭔가 잘못눌렀다 싶으면 바로 초기화면으로 돌아갑니다. 억울하면 똑바로 누르십시오
+// 메뉴출력과 메소드 호출까지 전부 매니저 클래스에서 진행합니다. main 메소드는 거들뿐
 
 @SuppressWarnings("serial")
 public class PhoneBookManager implements Serializable
@@ -354,10 +355,9 @@ public class PhoneBookManager implements Serializable
 		System.out.println("기존에 저장된 주소록을 불러왔습니다");
 	} //loadPhoneBook() 끝
 	
-	////////////////// 자동저장 쓰레드 on/off 옵션 (진행중) ////////////////////
+	// 데몬쓰레드를 on/off하고 이미 켜져있다면 중복을 피하도록 작성한 메서드
 	public void autoSaveBook()
 	{
-		
 		try
 		{
 			System.out.println("자동저장 하시겠습니까?");
@@ -380,13 +380,17 @@ public class PhoneBookManager implements Serializable
 					if(ast == null || ast.isAlive() == false)
 					
 					{
-						ast = new AutoSaverT();
-						ast.setName("autoSaver");
+						/* 쓰레드 ast를 매니저 클래스의 멤버변수로 선언했기 때문에 메소드 지역 
+							밖에서도 변수의 상태가 인식 및 유지가 되고 켰다가 껐다가 새롭게 켤 수 있다. */
+						ast = new AutoSaverT(); 
+						ast.setName("autoSaver"); // 이름은 사실 이 프로그램에서 의미 없습니다
 						ast.setDaemon(true);
 						
 						ast.start();
 						return;
 					}
+					// ast를 매니저 클래스의 멤버변수로 선언했기 때문에(22번줄 참조) else if문이 죽은코드가 되지 않을 수 있다
+					// 메소드 안의 지역변수가 되면 메소드가 시작할때 계속 null값으로 초기화되기 때문에 else if문에 닿는게 불가능
 					else if(ast.isAlive() == true)
 					{
 						System.out.println("이미 자동저장이 진행중입니다");
