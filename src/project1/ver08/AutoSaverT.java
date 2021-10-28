@@ -12,14 +12,13 @@ public class AutoSaverT extends Thread implements Serializable
 	HashSet<PhoneInfo> phone = PhoneBookManager.phone;
 	ObjectOutputStream objOut;
 	
-	
 	public AutoSaverT()
 	{
 		try
 		{
 			objOut = new ObjectOutputStream
 						(new FileOutputStream
-							("src/project1/ver08/AutoSaveBook.txt"));
+							("src/project1/ver08/AutoSaveBook.obj"));
 		}
 		catch(IOException err)
 		{
@@ -29,7 +28,6 @@ public class AutoSaverT extends Thread implements Serializable
 		{
 			System.out.println("자동저장 입력 중 에러가 발생했습니다");
 		}
-		
 	}
 	
 	@Override
@@ -57,6 +55,7 @@ public class AutoSaverT extends Thread implements Serializable
 				catch(Exception err)
 				{
 					System.out.println("자동저장 진행중 에러가 발생했습니다");
+					err.printStackTrace();
 				}
 			}
 	}

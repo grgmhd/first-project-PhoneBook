@@ -2,6 +2,7 @@ package project1.ver08;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -17,7 +18,7 @@ public class PhoneBookManager implements Serializable
 {
 	public static HashSet<PhoneInfo> phone = new HashSet<PhoneInfo>();
 	
-	AutoSaverT ast = new AutoSaverT();
+	
 	
 	Scanner scanner = new Scanner(System.in);
 	
@@ -196,55 +197,51 @@ public class PhoneBookManager implements Serializable
 	// dataInput()에서 입력받은 데이터묶음을 넘겨받아 중복체크, 프로그램에 저장
 	public void duplCheck(PhoneInfo pi)
 	{
-		for(PhoneInfo def: phone)
-		{	
-			/* pi == def로 하기에는 캐스팅타입에 문제가 생겼으나 
-				딱히 해결할 방법이 떠오르지 않아 equals는 사용하지 않았다 */
-			if(pi.hashCode() == def.hashCode())
+		if(phone.add(pi))
+		{
+			System.out.println("주소록에 입력되었습니다");
+			return;
+		}
+		else
+		{
+			System.out.println("이미 저장된 데이터입니다");
+			System.out.println("덮어쓸까요? Y(y)/N(n)");
+			try
 			{
-				System.out.println("이미 저장된 데이터입니다");
-				System.out.println("덮어쓸까요? Y(y)/N(n)");
-				try
+				int cover = System.in.read();
+				
+				if(cover=='Y' || cover=='y')
 				{
-					int cover = System.in.read();
-					
-					if(cover=='Y' || cover=='y')
-					{
-						phone.remove(def);
-						phone.add(pi);
-						System.out.println("덮어쓰기가 완료되었습니다");
-						return;
-					}
-					else if(cover=='N' || cover=='n')
-					{
-						System.out.println("입력이 취소되었습니다");
-						return;
-					}
-					else
-					{
-						MenuSelectException err = new MenuSelectException();
-						throw err;
-					}
-				}
-				catch(MenuSelectException err)
-				{
-					System.out.println("없는 메뉴입니다.");
-					System.out.println("초기화면으로 돌아갑니다");
+					phone.remove(pi);
+					phone.add(pi);
+					System.out.println("덮어쓰기가 완료되었습니다");
 					return;
 				}
-				catch(Exception err)
+				else if(cover=='N' || cover=='n')
 				{
-					System.out.println("에러가 발생했습니다dupl");
-					System.out.println("초기화면으로 돌아갑니다");
-					scanner.nextLine();
+					System.out.println("입력이 취소되었습니다");
 					return;
+				}
+				else
+				{
+					MenuSelectException err = new MenuSelectException();
+					throw err;
 				}
 			}
+			catch(MenuSelectException err)
+			{
+				System.out.println("없는 메뉴입니다.");
+				System.out.println("초기화면으로 돌아갑니다");
+				return;
+			}
+			catch(Exception err)
+			{
+				System.out.println("에러가 발생했습니다dupl");
+				System.out.println("초기화면으로 돌아갑니다");
+				scanner.nextLine();
+				return;
+			}
 		}
-		// 중복되지 않는 데이터는 그냥 저장된다.
-		phone.add(pi);
-		System.out.println("주소록에 입력되었습니다");
-		return;
 	} // duplCheck() 끝
 	
 	// 연락처 검색
@@ -360,6 +357,9 @@ public class PhoneBookManager implements Serializable
 	////////////////// 자동저장 쓰레드 on/off 옵션 (진행중) ////////////////////
 	public void autoSaveBook()
 	{
+		AutoSaverT ast = new AutoSaverT();
+		ast.setName("autoSaver");
+		ast.setDaemon(true);
 		try
 		{
 			System.out.println("자동저장 하시겠습니까?");
@@ -373,15 +373,12 @@ public class PhoneBookManager implements Serializable
 				throw err;
 			}
 			
-			ast.setName("autoSaver");
-			ast.setDaemon(true);
-			Thread.State state = ast.getState();
 			
 			switch(svOpt)
 			{
 				case 1: //on
 				{
-//					if(state == Thread.State.RUNNABLE || state == Thread.State.TIME_WAITING)
+//					if(ast.isAlive())
 //					{
 //						System.out.println("이미 자동저장 진행중입니다");
 //						return;
@@ -395,10 +392,8 @@ public class PhoneBookManager implements Serializable
 				}
 				default:
 				{
-					System.out.println("입력이 잘못되었습니다");
-					System.out.println("초기화면으로 돌아갑니다");
-					scanner.nextLine();
-					return;
+					MenuSelectException err = new MenuSelectException();
+					throw err;
 				}
 			}
 		}
@@ -416,7 +411,6 @@ public class PhoneBookManager implements Serializable
 			return;
 		}
 	} //autoSaveBook() 끝
-	
 	
 	
 } // class PhoneBookManager 끝.
