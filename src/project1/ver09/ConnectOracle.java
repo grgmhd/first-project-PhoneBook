@@ -74,8 +74,8 @@ public class ConnectOracle
 		{
 			if(conn!=null) conn.close();
 			if(psmt!=null) psmt.close();
+			if(stmt!=null) stmt.close();
 			if(rsSet!=null) rsSet.close();
-			System.out.println("자원반납 완료");
 		}
 		catch(Exception e)
 		{

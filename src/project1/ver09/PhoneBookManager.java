@@ -3,15 +3,18 @@ package project1.ver09;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+//메뉴출력과 메소드 호출까지 전부 매니저 클래스에서 진행합니다. main 메소드는 거들뿐
+
 public class PhoneBookManager
 {
+	// 9단계 패키지에 같이 들어있는 ConnectOracle 클래스를 불러와서 사용합니다
+	ConnectOracle connOracle = new ConnectOracle("kosmo", "1234");
 	
-	private PhoneInfo[] phone = new PhoneInfo[100];
-	private int numOfPhone = 0;
-	
+	// 대부분 ConnectOracle 클래스의 scanValue()를 사용했기 때문에 메뉴선택에서만 사용중
 	Scanner scanner = new Scanner(System.in);
 	
 	// 메뉴출력
+	@SuppressWarnings("static-access")
 	public void printMenu()
 	{
 		while(true)
@@ -31,33 +34,34 @@ public class PhoneBookManager
 			
 				switch(choice)
 				{
-					case 1: // 입력(저장)
+					case 1: // 연락처 입력(저장) psmt
 					{
 						scanner.nextLine();
 						dataInput();
 						break;
 					}
-					case 2: // 검색
+					case 2: // 연락처 검색 stmt
 					{
 						scanner.nextLine();
 						dataSearch();
 						break;
 					}
-					case 3: // 삭제
+					case 3: // 연락처 삭제 psmt
 					{
 						scanner.nextLine();
 						dataDelete();
 						break;
 					}
-					case 4: // 출력
+					case 4: // 연락처 출력 stmt
 					{
 						scanner.nextLine();
 						dataAllShow();
 						break;
 					}
-					case 5: // 종료
+					case 5: // 종료(jdbc연결을 이때 끊음)
 					{
 						System.out.println("프로그램을 종료합니다");
+						connOracle.close();
 						scanner.close();
 						return;
 					}
@@ -74,13 +78,12 @@ public class PhoneBookManager
 				err.printStackTrace();
 			}
 		}
-	}
+	} //printMenu() 끝
 	
-	// 입력
+	// 연락처 입력 (PreparedStatement 사용)
 	@SuppressWarnings("static-access")
 	public void dataInput()
 	{
-		ConnectOracle connOracle = new ConnectOracle("kosmo", "1234");
 		try
 		{
 			String query = "INSERT INTO phonebook_tb VALUES " 
@@ -92,17 +95,9 @@ public class PhoneBookManager
 			String phoneNumber = connOracle.scanValue("전화번호");
 			String birthday = connOracle.scanValue("생년월일");
 			
-			try
-			{
-				connOracle.psmt.setString(1, name);
-				connOracle.psmt.setString(2, phoneNumber);
-				connOracle.psmt.setString(3, birthday);
-			}
-			catch(Exception err)
-			{
-				System.out.println("에러가 발생했습니다");
-				err.printStackTrace();
-			}
+			connOracle.psmt.setString(1, name);
+			connOracle.psmt.setString(2, phoneNumber);
+			connOracle.psmt.setString(3, birthday);
 			
 			System.out.println("주소록에 입력되었습니다");
 			
@@ -113,39 +108,48 @@ public class PhoneBookManager
 		{
 			err.printStackTrace();
 		}
-		finally
-		{
-			connOracle.close();
-		}
-	}
+	} //dataInput() 끝
 	
-	// 검색
+	// 검색 (정적 Statement 사용)
+	@SuppressWarnings("static-access")
 	public void dataSearch()
 	{
-		ConnectOracle connOracle = new ConnectOracle("kosmo", "1234");
 		try
 		{
 			connOracle.stmt = connOracle.conn.createStatement();
 			
 			System.out.println("검색을 시작합니다.");
-			String search =connOracle.scanValue("찾으시는 이름");
+			String search = connOracle.scanValue("찾으시는 이름");
 			
 			String query = "SELECT * FROM phonebook_tb WHERE name='"+search+"'";
-			System.out.println("query : "+query);
+			//쿼리문 확인용
+//			System.out.println("query : "+query);
 			connOracle.rsSet = connOracle.stmt.executeQuery(query);
 			
+			//출력할 내용이 있는지 확인용 변수
+			boolean flag = true;
+			
+			//next()가 true,false값을 반환하기때문에 가능한 구조입니다
 			while(connOracle.rsSet.next())
 			{
-				String idx = connOracle.rsSet.getString("1");
-				String name = connOracle.rsSet.getString("2");
-				String phoneNumber = connOracle.rsSet.getString("3");
-				String birthday = connOracle.rsSet.getString("4");
+				System.out.println("요청한 정보를 찾았습니다");
+				String idx = connOracle.rsSet.getString("idx");
+				String name = connOracle.rsSet.getString("name");
+				String phoneNumber = connOracle.rsSet.getString("phoneNumber");
+				String birthday = connOracle.rsSet.getString("birthday").substring(0, 10);
 				
+				System.out.println("----------------------------------");
 				System.out.printf
 					("%s %s %s %s\n", idx, name, phoneNumber, birthday);
+				System.out.println("----------------------------------");
+				flag = false;
 			}
-			System.out.println();
-			
+			if(flag==true)
+			{
+				System.out.println("주소록에 저장되지 않은 이름입니다");
+				return;
+			}
+			System.out.println("검색이 완료되었습니다");
 		}
 		catch(SQLException err)
 		{
@@ -157,52 +161,91 @@ public class PhoneBookManager
 			System.out.println("에러가 발생했습니다");
 			err.printStackTrace();
 		}
-		finally
-		{
-			connOracle.close();
-			return;
-		}
-	}
+	}//dataSearch() 끝
 	
-	// 삭제
+	// 삭제 (PreparedStatement 사용)
+	@SuppressWarnings("static-access")
 	public void dataDelete()
 	{
-		System.out.print("삭제할 이름을 입력하세요: ");
-		String delete = scanner.nextLine();
+		System.out.println("삭제를 시작합니다.");
 		
-		int deleteIndex = -1;
-		for(int i=0; i<numOfPhone; i++)
+		try
 		{
-			if(delete.compareTo(phone[i].name)==0)
+			String query = "DELETE FROM phonebook_tb WHERE name=?";
+			
+			connOracle.psmt = connOracle.conn.prepareStatement(query);
+			
+			String delete = connOracle.scanValue("삭제하실 이름");
+			connOracle.psmt.setString(1, delete);
+			
+			//쿼리문 확인용
+//			System.out.println("query : "+query);
+			
+			int affected = connOracle.psmt.executeUpdate();
+			
+			// executeUpdate()가 몇개의 행에 영향을 미쳤는지 int값으로 반환하기 때문에 가능한 구조입니다.
+			if(affected == 0)
 			{
-				phone[i] = null;
-				deleteIndex = i;
-				numOfPhone--;
-				break;
+				System.out.println("주소록에 저장되지 않은 이름입니다");
+			}
+			else
+			{
+				System.out.println("주소록에서 연락처가 삭제되었습니다");
+				System.out.println(affected +"행이 삭제되었습니다");
 			}
 		}
-		if(deleteIndex == -1)
+		catch(Exception err)
 		{
-			System.out.println("주소록에 저장되지 않은 이름입니다");
+			System.out.println("에러가 발생했습니다");
+			err.printStackTrace();
 		}
-		else
-		{
-			for(int i=deleteIndex; i<numOfPhone; i++)
-			{
-				phone[i] = phone[i+1];
-			}
-			System.out.printf("입력한 정보가 삭제되었습니다(%d)%n", 
-															deleteIndex);
-		}
-	}
+	}//dataDelete() 끝
 	
-	// 주소록 전체 출력
-	public void  dataAllShow()
+	// 주소록 전체 출력 (정적 Statement 사용)
+	@SuppressWarnings("static-access")
+	public void dataAllShow()
 	{
-		for(int i=0; i<numOfPhone; i++)
+		try
 		{
-			phone[i].showPhoneInfo();
+			connOracle.stmt = connOracle.conn.createStatement();
+			String query = "SELECT * FROM phonebook_tb";
+			//쿼리문 확인용
+//			System.out.println("query : "+query);
+			connOracle.rsSet = connOracle.stmt.executeQuery(query);
+			
+			//출력할 내용이 있는지 확인용 변수
+			boolean flag = true;
+			
+			//next()가 true,false값을 반환하기때문에 가능한 구조입니다
+			while(connOracle.rsSet.next())
+			{
+				String idx = connOracle.rsSet.getString("idx");
+				String name = connOracle.rsSet.getString("name");
+				String phoneNumber = connOracle.rsSet.getString("phoneNumber");
+				String birthday = connOracle.rsSet.getString("birthday").substring(0, 10);
+				
+				System.out.println("----------------------------------");
+				System.out.printf
+					("%s %s %s %s\n", idx, name, phoneNumber, birthday);
+				System.out.println("----------------------------------");
+				flag = false;
+			}
+			if(flag==true)
+			{
+				System.out.println("저장된 연락처가 없습니다");
+				return;
+			}
+			System.out.println("주소록에 저장된 정보가 출력되었습니다");
 		}
-		System.out.println("주소록에 저장된 정보가 출력되었습니다");
-	}
-}
+		catch(SQLException err)
+		{
+			System.out.println("쿼리에 오류가 발생했습니다");
+			err.printStackTrace();
+		}
+		catch(Exception err)
+		{
+			System.out.println("에러가 발생했습니다");
+			err.printStackTrace();
+		}
+	}//dataAllShow() 끝
+}//PhoneBookManager 클래스 끝. main 메소드에 아무것도 없기 때문에 실질적인 프로그램의 끝
