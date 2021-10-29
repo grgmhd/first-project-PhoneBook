@@ -1,5 +1,6 @@
 package project1.ver09;
 
+import java.sql.SQLDataException;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -7,14 +8,13 @@ import java.util.Scanner;
 
 public class PhoneBookManager
 {
-	// 9단계 패키지에 같이 들어있는 ConnectOracle 클래스를 불러와서 사용합니다
+	// jdbc 연결 관련된 부분은 9단계 패키지에 같이 들어있는 ConnectOracle 클래스를 불러와서 사용합니다
 	ConnectOracle connOracle = new ConnectOracle("kosmo", "1234");
 	
 	// 대부분 ConnectOracle 클래스의 scanValue()를 사용했기 때문에 메뉴선택에서만 사용중
 	Scanner scanner = new Scanner(System.in);
 	
 	// 메뉴출력
-	@SuppressWarnings("static-access")
 	public void printMenu()
 	{
 		while(true)
@@ -74,14 +74,16 @@ public class PhoneBookManager
 			}
 			catch(Exception err)
 			{
-				System.out.println("잘못 입력하셨습니다. 다시 선택해주세요");
-				err.printStackTrace();
+				System.out.println("잘못 입력하셨습니다. 다시 선택해주세요menu");
+				scanner.nextLine();
 			}
 		}
 	} //printMenu() 끝
 	
 	// 연락처 입력 (PreparedStatement 사용)
-	@SuppressWarnings("static-access")
+	// primary key를 시퀀스로 생성한 idx에 걸었기 때문에 이름을 중복저장하는 것이 허용됩니다.
+	// 따라서 이름이 중복되었다고 오류가 뜨지 않고 이름에 대한 부분은 에러를 예외처리하지 않았습니다.
+	// SQLDataException 를 예외처리한 부분은 생년월일의 date타입에 잘못 입력했을 경우에 대한 것입니다.
 	public void dataInput()
 	{
 		try
@@ -99,29 +101,32 @@ public class PhoneBookManager
 			connOracle.psmt.setString(2, phoneNumber);
 			connOracle.psmt.setString(3, birthday);
 			
-			System.out.println("주소록에 입력되었습니다");
+			connOracle.psmt.executeUpdate();
 			
-			int affected = connOracle.psmt.executeUpdate();
-			System.out.println(affected +"행이 입력되었습니다");
+			System.out.println("주소록에 입력되었습니다");
+		}
+		catch(SQLDataException err)
+		{
+			System.out.println("잘못 입력하셨습니다");
 		}
 		catch(Exception err)
 		{
+			System.out.println("에러가 발생했습니다input");
 			err.printStackTrace();
 		}
 	} //dataInput() 끝
 	
 	// 검색 (정적 Statement 사용)
-	@SuppressWarnings("static-access")
 	public void dataSearch()
 	{
 		try
 		{
 			connOracle.stmt = connOracle.conn.createStatement();
 			
-			System.out.println("검색을 시작합니다.");
+			System.out.println("주소록 검색을 시작합니다.");
 			String search = connOracle.scanValue("찾으시는 이름");
 			
-			String query = "SELECT * FROM phonebook_tb WHERE name='"+search+"'";
+			String query = "SELECT * FROM phonebook_tb WHERE name like '%"+search+"%'";
 			//쿼리문 확인용
 //			System.out.println("query : "+query);
 			connOracle.rsSet = connOracle.stmt.executeQuery(query);
@@ -140,15 +145,19 @@ public class PhoneBookManager
 				
 				System.out.println("----------------------------------");
 				System.out.printf
-					("%s %s %s %s\n", idx, name, phoneNumber, birthday);
+					("%2s  %s  %s %s\n", idx, name, phoneNumber, birthday);
 				System.out.println("----------------------------------");
 				flag = false;
 			}
+			// 출력할 내용이 없어 while문에 들어가지 못했다면 flag가 바뀌지 못합니다
+			// (boolean이 아니라 숫자나 문자타입으로 해도 상관 X 정해진 내용으로 바꾸기만 하면 됩니다)
+			// flag가 초기화된 그대로라면 if문 안으로 바로 딸려가서 메세지를 출력하고 메소드밖으로 튕겨냅니다
 			if(flag==true)
 			{
 				System.out.println("주소록에 저장되지 않은 이름입니다");
 				return;
 			}
+			// while문을 무사히 통과해서 flag가 바뀌었다면 if문을 무시하고 이 메세지에 닿게 됩니다.
 			System.out.println("검색이 완료되었습니다");
 		}
 		catch(SQLException err)
@@ -158,16 +167,15 @@ public class PhoneBookManager
 		}
 		catch(Exception err)
 		{
-			System.out.println("에러가 발생했습니다");
+			System.out.println("에러가 발생했습니다sch");
 			err.printStackTrace();
 		}
 	}//dataSearch() 끝
 	
-	// 삭제 (PreparedStatement 사용)
-	@SuppressWarnings("static-access")
+	// 연락처 삭제 (PreparedStatement 사용)
 	public void dataDelete()
 	{
-		System.out.println("삭제를 시작합니다.");
+		System.out.println("연락처 삭제를 시작합니다.");
 		
 		try
 		{
@@ -196,13 +204,12 @@ public class PhoneBookManager
 		}
 		catch(Exception err)
 		{
-			System.out.println("에러가 발생했습니다");
+			System.out.println("에러가 발생했습니다del");
 			err.printStackTrace();
 		}
 	}//dataDelete() 끝
 	
 	// 주소록 전체 출력 (정적 Statement 사용)
-	@SuppressWarnings("static-access")
 	public void dataAllShow()
 	{
 		try
@@ -226,7 +233,7 @@ public class PhoneBookManager
 				
 				System.out.println("----------------------------------");
 				System.out.printf
-					("%s %s %s %s\n", idx, name, phoneNumber, birthday);
+					("%2s  %s  %s %s\n", idx, name, phoneNumber, birthday);
 				System.out.println("----------------------------------");
 				flag = false;
 			}
@@ -244,7 +251,7 @@ public class PhoneBookManager
 		}
 		catch(Exception err)
 		{
-			System.out.println("에러가 발생했습니다");
+			System.out.println("에러가 발생했습니다show");
 			err.printStackTrace();
 		}
 	}//dataAllShow() 끝

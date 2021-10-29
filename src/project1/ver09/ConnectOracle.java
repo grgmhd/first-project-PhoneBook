@@ -10,14 +10,14 @@ import java.util.Scanner;
 
 public class ConnectOracle
 {
-	// 변하면 큰일나는 내용이라서 final로 선언했습니다. static은 섭섭하니까 넣음(안넣어도 작동합니다).
-	public static final String ORACLE_DRIVER = "oracle.jdbc.OracleDriver";
-	public static final String ORACLE_URL = "jdbc:oracle:thin://@localhost:1521:xe";
+	// 변하면 큰일나는 내용이라서 final로 선언했습니다.
+	public final String ORACLE_DRIVER = "oracle.jdbc.OracleDriver";
+	public final String ORACLE_URL = "jdbc:oracle:thin://@localhost:1521:xe";
 	
-	public static Connection conn;
-	public static PreparedStatement psmt; // 동적쿼리 실행을 위한 객체
-	public static Statement stmt; // 정적쿼리 실행을 위한 객체
-	public static ResultSet rsSet; // 실행결과를 반환받는 set
+	public Connection conn;
+	public PreparedStatement psmt; // 동적쿼리 실행을 위한 객체
+	public Statement stmt; // 정적쿼리 실행을 위한 객체
+	public ResultSet rsSet; // 실행결과를 반환받는 set
 	
 	//디폴트생성자
 	public ConnectOracle() {}
@@ -67,7 +67,7 @@ public class ConnectOracle
 	}
 	
 	//자원반납
-	public static void close()
+	public void close()
 	{
 		try
 		{
@@ -83,7 +83,7 @@ public class ConnectOracle
 		}
 	}
 	// 사용자로부터 무엇에 대한 입력을 받을것인지 표시하고, 입력받은 값을 반환하는 메소드입니다
-	public static String scanValue(String title)
+	public String scanValue(String title)
 	{
 		Scanner scan = new Scanner(System.in);
 		System.out.print(title +": ");
