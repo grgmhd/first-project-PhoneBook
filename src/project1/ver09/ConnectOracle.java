@@ -10,13 +10,14 @@ import java.util.Scanner;
 
 public class ConnectOracle
 {
+	// 변하면 큰일나는 내용이라서 final로 선언했습니다. static은 섭섭하니까 넣음(안넣어도 작동합니다).
 	public static final String ORACLE_DRIVER = "oracle.jdbc.OracleDriver";
 	public static final String ORACLE_URL = "jdbc:oracle:thin://@localhost:1521:xe";
 	
 	public static Connection conn;
 	public static PreparedStatement psmt; // 동적쿼리 실행을 위한 객체
-	public static Statement stmt;
-	public static ResultSet rsSet;
+	public static Statement stmt; // 정적쿼리 실행을 위한 객체
+	public static ResultSet rsSet; // 실행결과를 반환받는 set
 	
 	//디폴트생성자
 	public ConnectOracle() {}
@@ -64,8 +65,6 @@ public class ConnectOracle
 			e.printStackTrace();
 		}
 	}
-	// 오버라이딩용. 쿼리실행은 각 클래스에서 기술함.
-	public void execute() {}
 	
 	//자원반납
 	public static void close()
@@ -83,17 +82,13 @@ public class ConnectOracle
 			e.printStackTrace();
 		}
 	}
-	// 사용자로부터 입력값을 받기 위한 메서드
+	// 사용자로부터 무엇에 대한 입력을 받을것인지 표시하고, 입력받은 값을 반환하는 메소드입니다
 	public static String scanValue(String title)
 	{
 		Scanner scan = new Scanner(System.in);
 		System.out.print(title +": ");
 		String inputStr = scan.nextLine();
-		/*
-		equalsIgnoreCase()
-			: equals()와 동일하게 문자열이 같은지를 비교하는 메소드로
-			대소문자를 구분없이 비교할 수 있다.
-		 */
+		
 		return inputStr;
 	}
 }
