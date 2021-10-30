@@ -83,7 +83,7 @@ public class PhoneBookManager
 	// 연락처 입력 (PreparedStatement 사용)
 	// primary key를 시퀀스로 생성한 idx에 걸었기 때문에 이름을 중복저장하는 것이 허용됩니다.
 	// 따라서 이름이 중복되었다고 오류가 뜨지 않고 이름에 대한 부분은 에러를 예외처리하지 않았습니다.
-	// SQLDataException 를 예외처리한 부분은 생년월일의 date타입에 잘못 입력했을 경우에 대한 것입니다.
+	// SQLDataException을 예외처리한 부분은 생년월일에 date타입을 잘못 입력했을 경우에 대한 것입니다.
 	public void dataInput()
 	{
 		try
@@ -108,7 +108,8 @@ public class PhoneBookManager
 		catch(SQLDataException err)
 		{
 			System.out.println("날짜 형식이 잘못되었습니다");
-			System.out.println("'(yy)yy-mm-dd' 또는 '(yy)yy/mm/dd' 또는 '(yy)yy.mm.dd' 형식으로 작성해주세요");
+			System.out.println("특수문자가 아닌 글자를 입력할수 없습니다");
+			System.out.println("입력 가능한 예시: yy/mm/dd");
 		}
 		catch(Exception err)
 		{
