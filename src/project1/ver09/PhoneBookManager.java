@@ -107,7 +107,8 @@ public class PhoneBookManager
 		}
 		catch(SQLDataException err)
 		{
-			System.out.println("잘못 입력하셨습니다");
+			System.out.println("날짜 형식이 잘못되었습니다");
+			System.out.println("'(yy)yy-mm-dd' 또는 '(yy)yy/mm/dd' 또는 '(yy)yy.mm.dd' 형식으로 작성해주세요");
 		}
 		catch(Exception err)
 		{
