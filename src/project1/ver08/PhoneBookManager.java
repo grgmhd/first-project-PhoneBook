@@ -173,6 +173,7 @@ public class PhoneBookManager implements Serializable
 					
 					PhoneCompanyInfo pci 
 						= new PhoneCompanyInfo(name, pNumber, companyName);
+					
 					duplCheck(pci);
 					
 					break;
@@ -308,7 +309,7 @@ public class PhoneBookManager implements Serializable
 		System.out.println("주소록에 저장된 정보가 출력되었습니다");
 	} //dataAllShow() 끝
 	
-	// 종료시 입력된 데이터 저장
+	// 종료시 프로그램에 존재하는 데이터를 .obj 파일로 저장
 	public void savePhoneBook()
 	{
 		try
@@ -343,12 +344,12 @@ public class PhoneBookManager implements Serializable
 			while(true)
 			{
 				PhoneInfo pi = (PhoneInfo)objIn.readObject();
-				phone.add(pi);
 				if(pi==null)
 				{
 					objIn.close();
 					break;
 				}
+				phone.add(pi);
 			}
 		}
 		catch(Exception err) {} // 시끄럽다. 무시. 무한루프끝나면 어차피 닫아준다
@@ -360,7 +361,7 @@ public class PhoneBookManager implements Serializable
 	{
 		try
 		{
-			System.out.println("자동저장 하시겠습니까?");
+			System.out.println("자동저장을 설정하세요");
 			System.out.println("1.On, 2.Off");
 			
 			int svOpt = scanner.nextInt();
