@@ -391,6 +391,7 @@ public class PhoneBookManager implements Serializable
 						return;
 					}
 					// ast를 매니저 클래스의 멤버변수로 선언했기 때문에(22번줄 참조) else if문이 죽은코드가 되지 않을 수 있다
+					// 메소드 안의 지역변수가 되면 메소드가 시작할때 계속 null값으로 초기화되기 때문에 else if문에 닿는게 불가능
 					else if(ast.isAlive() == true)
 					{
 						System.out.println("이미 자동저장이 진행중입니다");
